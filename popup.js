@@ -22,6 +22,9 @@ tabButtons.forEach(button => {
     button.classList.add('active');
     document.getElementById(targetTab).classList.add('active');
 
+    // Save last active tab
+    chrome.storage.local.set({ lastActiveTab: targetTab });
+
     // Load current state when switching tabs
     if (targetTab === 'timer') loadTimerState();
     if (targetTab === 'stopwatch') loadStopwatchState();
@@ -29,25 +32,33 @@ tabButtons.forEach(button => {
   });
 });
 
-// ============================================
-// PIN TO BROWSER FUNCTIONALITY
-// ============================================
-const pinBtn = document.getElementById('pin-to-browser');
+// Load last active tab on startup
+function loadLastActiveTab() {
+  chrome.storage.local.get(['lastActiveTab'], (result) => {
+    const lastTab = result.lastActiveTab || 'timer';
 
-pinBtn.addEventListener('click', () => {
-  // Determine which timer is currently active
-  const activeTab = document.querySelector('.tab-btn.active');
-  const timerType = activeTab ? activeTab.getAttribute('data-tab') : 'timer';
+    // Remove all active classes
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+    tabContents.forEach(content => content.classList.remove('active'));
 
-  // Save the active timer type to storage
-  chrome.storage.local.set({ pinnedTimerType: timerType });
+    // Activate the last used tab
+    const targetButton = document.querySelector(`[data-tab="${lastTab}"]`);
+    const targetContent = document.getElementById(lastTab);
 
-  // Send message to background to create pinned window
-  chrome.runtime.sendMessage({
-    action: 'createPinnedWindow',
-    timerType: timerType
+    if (targetButton && targetContent) {
+      targetButton.classList.add('active');
+      targetContent.classList.add('active');
+    }
+
+    // Load state for the active tab
+    if (lastTab === 'timer') loadTimerState();
+    if (lastTab === 'stopwatch') loadStopwatchState();
+    if (lastTab === 'pomodoro') loadPomodoroState();
   });
-});
+}
+
+// Initial load
+document.addEventListener('DOMContentLoaded', loadLastActiveTab);
 
 // ============================================
 // UTILITY FUNCTIONS
@@ -92,6 +103,30 @@ const timerMinutesInput = document.getElementById('timer-minutes');
 const timerSecondsInput = document.getElementById('timer-seconds');
 
 let timerUpdateInterval = null;
+
+// Add scroll functionality to timer inputs
+function addScrollToInput(input, min, max) {
+  input.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    let currentValue = parseInt(input.value) || 0;
+
+    if (e.deltaY < 0) {
+      // Scroll up - increase
+      currentValue = Math.min(currentValue + 1, max);
+    } else {
+      // Scroll down - decrease
+      currentValue = Math.max(currentValue - 1, min);
+    }
+
+    input.value = currentValue;
+  });
+}
+
+// Apply scroll to all timer inputs
+addScrollToInput(timerHoursInput, 0, 23);
+addScrollToInput(timerMinutesInput, 0, 59);
+addScrollToInput(timerSecondsInput, 0, 59);
+
 
 // Start Timer
 timerStartBtn.addEventListener('click', () => {
