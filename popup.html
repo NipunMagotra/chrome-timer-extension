@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timer Extension</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Tab Navigation -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="timer">Timer</button>
+      <button class="tab-btn" data-tab="stopwatch">Stopwatch</button>
+      <button class="tab-btn" data-tab="pomodoro">Pomodoro</button>
+    </div>
+
+    <!-- Timer Section -->
+    <div class="tab-content active" id="timer">
+      <h2>Custom Timer</h2>
+      <div class="time-input">
+        <div class="input-group">
+          <input type="number" id="timer-hours" min="0" max="23" value="0" placeholder="HH">
+          <label>Hours</label>
+        </div>
+        <div class="input-group">
+          <input type="number" id="timer-minutes" min="0" max="59" value="0" placeholder="MM">
+          <label>Minutes</label>
+        </div>
+        <div class="input-group">
+          <input type="number" id="timer-seconds" min="0" max="59" value="0" placeholder="SS">
+          <label>Seconds</label>
+        </div>
+      </div>
+      <div class="display">
+        <span id="timer-display">00:00:00</span>
+      </div>
+      <div class="controls">
+        <button id="timer-start" class="btn btn-primary">Start</button>
+        <button id="timer-pause" class="btn btn-secondary" disabled>Pause</button>
+        <button id="timer-reset" class="btn btn-tertiary">Reset</button>
+      </div>
+    </div>
+
+    <!-- Stopwatch Section -->
+    <div class="tab-content" id="stopwatch">
+      <h2>Stopwatch</h2>
+      <div class="display">
+        <span id="stopwatch-display">00:00:00.000</span>
+      </div>
+      <div class="controls">
+        <button id="stopwatch-start" class="btn btn-primary">Start</button>
+        <button id="stopwatch-pause" class="btn btn-secondary" disabled>Pause</button>
+        <button id="stopwatch-reset" class="btn btn-tertiary">Reset</button>
+      </div>
+    </div>
+
+    <!-- Pomodoro Section -->
+    <div class="tab-content" id="pomodoro">
+      <h2>Pomodoro Timer</h2>
+      
+      <!-- Settings (collapsible) -->
+      <div class="pomodoro-settings">
+        <button id="pomodoro-settings-toggle" class="settings-toggle">⚙️ Settings</button>
+        <div class="settings-panel" id="pomodoro-settings-panel">
+          <div class="input-group">
+            <label>Work (min)</label>
+            <input type="number" id="pomodoro-work" min="1" max="60" value="25">
+          </div>
+          <div class="input-group">
+            <label>Short Break (min)</label>
+            <input type="number" id="pomodoro-short" min="1" max="30" value="5">
+          </div>
+          <div class="input-group">
+            <label>Long Break (min)</label>
+            <input type="number" id="pomodoro-long" min="1" max="60" value="15">
+          </div>
+          <button id="pomodoro-save-settings" class="btn btn-small">Save</button>
+        </div>
+      </div>
+
+      <div class="pomodoro-info">
+        <div class="session-type" id="pomodoro-session-type">Work Session</div>
+        <div class="cycle-counter">
+          Cycle: <span id="pomodoro-cycle">1</span> / 4
+        </div>
+      </div>
+
+      <div class="display">
+        <span id="pomodoro-display">25:00</span>
+      </div>
+
+      <div class="controls">
+        <button id="pomodoro-start" class="btn btn-primary">Start</button>
+        <button id="pomodoro-pause" class="btn btn-secondary" disabled>Pause</button>
+        <button id="pomodoro-reset" class="btn btn-tertiary">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
