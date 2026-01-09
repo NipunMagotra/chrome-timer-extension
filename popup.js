@@ -13,19 +13,39 @@ const tabContents = document.querySelectorAll('.tab-content');
 tabButtons.forEach(button => {
   button.addEventListener('click', () => {
     const targetTab = button.getAttribute('data-tab');
-    
+
     // Remove active class from all tabs and buttons
     tabButtons.forEach(btn => btn.classList.remove('active'));
     tabContents.forEach(content => content.classList.remove('active'));
-    
+
     // Add active class to clicked button and corresponding content
     button.classList.add('active');
     document.getElementById(targetTab).classList.add('active');
-    
+
     // Load current state when switching tabs
     if (targetTab === 'timer') loadTimerState();
     if (targetTab === 'stopwatch') loadStopwatchState();
     if (targetTab === 'pomodoro') loadPomodoroState();
+  });
+});
+
+// ============================================
+// PIN TO BROWSER FUNCTIONALITY
+// ============================================
+const pinBtn = document.getElementById('pin-to-browser');
+
+pinBtn.addEventListener('click', () => {
+  // Determine which timer is currently active
+  const activeTab = document.querySelector('.tab-btn.active');
+  const timerType = activeTab ? activeTab.getAttribute('data-tab') : 'timer';
+
+  // Save the active timer type to storage
+  chrome.storage.local.set({ pinnedTimerType: timerType });
+
+  // Send message to background to create pinned window
+  chrome.runtime.sendMessage({
+    action: 'createPinnedWindow',
+    timerType: timerType
   });
 });
 
@@ -79,18 +99,18 @@ timerStartBtn.addEventListener('click', () => {
   const minutes = parseInt(timerMinutesInput.value) || 0;
   const seconds = parseInt(timerSecondsInput.value) || 0;
   const totalSeconds = hours * 3600 + minutes * 60 + seconds;
-  
+
   if (totalSeconds <= 0) {
     alert('Please set a valid time!');
     return;
   }
-  
+
   // Send message to background to start timer
   chrome.runtime.sendMessage({
     action: 'startTimer',
     duration: totalSeconds
   });
-  
+
   updateTimerButtons('running');
   startTimerDisplay();
 });
@@ -160,7 +180,7 @@ function loadTimerState() {
     if (result.timerState) {
       const { remainingSeconds, isRunning } = result.timerState;
       timerDisplay.textContent = formatTime(remainingSeconds);
-      
+
       if (isRunning && remainingSeconds > 0) {
         updateTimerButtons('running');
         startTimerDisplay();
@@ -249,7 +269,7 @@ function loadStopwatchState() {
     if (result.stopwatchState) {
       const { elapsedMs, isRunning } = result.stopwatchState;
       stopwatchDisplay.textContent = formatTimeWithMs(elapsedMs);
-      
+
       if (isRunning) {
         updateStopwatchButtons('running');
         startStopwatchDisplay();
@@ -291,7 +311,7 @@ pomodoroSaveSettings.addEventListener('click', () => {
   const workDuration = parseInt(pomodoroWorkInput.value) || 25;
   const shortBreakDuration = parseInt(pomodoroShortInput.value) || 5;
   const longBreakDuration = parseInt(pomodoroLongInput.value) || 15;
-  
+
   chrome.runtime.sendMessage({
     action: 'updatePomodoroSettings',
     settings: {
@@ -300,7 +320,7 @@ pomodoroSaveSettings.addEventListener('click', () => {
       longBreakDuration
     }
   });
-  
+
   pomodoroSettingsPanel.classList.remove('open');
   loadPomodoroState();
 });
@@ -356,7 +376,7 @@ function startPomodoroDisplay() {
         pomodoroDisplay.textContent = `${pad(minutes)}:${pad(seconds)}`;
         pomodoroSessionType.textContent = sessionType;
         pomodoroCycle.textContent = cycle;
-        
+
         if (remainingSeconds <= 0) {
           stopPomodoroDisplay();
         }
@@ -383,7 +403,7 @@ function loadPomodoroState() {
       pomodoroDisplay.textContent = `${pad(minutes)}:${pad(seconds)}`;
       pomodoroSessionType.textContent = sessionType;
       pomodoroCycle.textContent = cycle;
-      
+
       if (isRunning && remainingSeconds > 0) {
         updatePomodoroButtons('running');
         startPomodoroDisplay();
@@ -393,7 +413,7 @@ function loadPomodoroState() {
         updatePomodoroButtons('idle');
       }
     }
-    
+
     // Load settings
     if (result.pomodoroSettings) {
       pomodoroWorkInput.value = result.pomodoroSettings.workDuration;
@@ -412,7 +432,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     updateTimerButtons('idle');
     stopTimerDisplay();
   }
-  
+
   if (message.action === 'pomodoroSessionChange') {
     loadPomodoroState();
   }

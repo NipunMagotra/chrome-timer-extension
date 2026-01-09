@@ -1,13 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Timer Extension</title>
   <link rel="stylesheet" href="popup.css">
 </head>
+
 <body>
   <div class="container">
+    <!-- Pin Header -->
+    <div class="pin-header">
+      <h1 class="app-title">⏱️ Timer Pro</h1>
+      <button id="pin-to-browser" class="pin-btn" title="Pin to browser">
+        📌 Pin
+      </button>
+    </div>
+
     <!-- Tab Navigation -->
     <div class="tabs">
       <button class="tab-btn active" data-tab="timer">Timer</button>
@@ -58,7 +68,7 @@
     <!-- Pomodoro Section -->
     <div class="tab-content" id="pomodoro">
       <h2>Pomodoro Timer</h2>
-      
+
       <!-- Settings (collapsible) -->
       <div class="pomodoro-settings">
         <button id="pomodoro-settings-toggle" class="settings-toggle">⚙️ Settings</button>
@@ -100,4 +110,5 @@
 
   <script src="popup.js"></script>
 </body>
+
 </html>

@@ -48,6 +48,30 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log('Received message:', message);
 
+    // Pinned window creation
+    if (message.action === 'createPinnedWindow') {
+        // Get screen dimensions to position in top right
+        chrome.system.display.getInfo((displays) => {
+            const primaryDisplay = displays[0];
+            const screenWidth = primaryDisplay.bounds.width;
+
+            // Create small window in top right corner
+            chrome.windows.create({
+                url: 'pinned.html',
+                type: 'popup',
+                width: 280,
+                height: 200,
+                left: screenWidth - 300, // 20px from right edge
+                top: 20, // 20px from top
+                focused: false // Don't steal focus
+            }, (window) => {
+                console.log('Pinned window created:', window.id);
+                // Store window ID for future reference
+                chrome.storage.local.set({ pinnedWindowId: window.id });
+            });
+        });
+    }
+
     // Timer actions
     if (message.action === 'startTimer') {
         startTimer(message.duration);
